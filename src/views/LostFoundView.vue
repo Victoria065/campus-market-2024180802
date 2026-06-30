@@ -84,72 +84,84 @@ onMounted(async () => {
 .page { padding: 0; }
 
 .page-banner {
-  border-radius: 14px; padding: 32px 28px; margin-bottom: 24px; color: #fff;
+  border-radius: 16px; padding: 36px 32px; margin-bottom: 24px; color: #fff;
+  position: relative; overflow: hidden;
 }
-.banner-lost { background: linear-gradient(135deg, #e6a23c, #d48806); }
-.banner-text h1 { font-size: 26px; font-weight: 800; margin-bottom: 4px; }
+.banner-lost {
+  background: linear-gradient(135deg, #e6a23c, #d48806);
+  box-shadow: 0 4px 20px rgba(230, 162, 60, 0.2);
+}
+.banner-text h1 { font-size: 28px; font-weight: 800; margin-bottom: 6px; }
 .banner-text p  { font-size: 14px; opacity: .85; }
 
 .filter-bar { display: flex; gap: 10px; margin-bottom: 24px; flex-wrap: wrap; }
 .filter-btn {
-  padding: 8px 18px; border-radius: 22px; font-size: 13px; font-weight: 500;
-  color: #555; background: #fff; border: 1px solid #e5e5e5;
-  cursor: pointer; transition: all .2s; user-select: none;
+  padding: 8px 20px; border-radius: 24px; font-size: 13px; font-weight: 500;
+  color: #555; background: #fff; border: 1.5px solid #e8e8e8;
+  cursor: pointer; transition: all .25s; user-select: none;
 }
-.filter-btn:hover { border-color: #e6a23c; color: #e6a23c; }
+.filter-btn:hover { border-color: #e6a23c; color: #e6a23c; background: #fffbf5; }
 .filter-btn.active {
-  background: #e6a23c; color: #fff; border-color: #e6a23c;
-  box-shadow: 0 4px 12px rgba(230,162,60,.35);
+  background: linear-gradient(135deg, #e6a23c, #f0b954);
+  color: #fff; border-color: transparent;
+  box-shadow: 0 4px 14px rgba(230, 162, 60, .35);
 }
 
 .loading-box { text-align: center; padding: 80px 0; color: #999; }
 .spinner {
-  display: inline-block; width: 32px; height: 32px;
-  border: 3px solid #e5e5e5; border-top-color: #e6a23c;
-  border-radius: 50%; animation: spin .7s linear infinite; margin-bottom: 12px;
+  display: inline-block; width: 36px; height: 36px;
+  border: 3px solid #e8e8e8; border-top-color: #e6a23c;
+  border-radius: 50%; animation: spin .7s linear infinite; margin-bottom: 14px;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
 .lost-list { display: flex; flex-direction: column; gap: 14px; }
 .lost-card {
-  display: flex; gap: 18px;
-  background: #fff; border: 1px solid #f0f0f0; border-radius: 12px;
-  padding: 20px; transition: all .25s;
+  display: flex; gap: 20px;
+  background: #fff; border: 1px solid #f0f0f0; border-radius: 14px;
+  padding: 22px; transition: all .3s ease;
 }
 .lost-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(0,0,0,.08);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, .08);
+  border-color: #e0d8c0;
 }
-.lost-card.is-closed { opacity: .5; }
+.lost-card.is-closed { opacity: .45; }
+.lost-card.is-closed:hover { opacity: .65; }
 
 .lost-icon-wrap {
-  width: 56px; height: 56px; border-radius: 14px;
+  width: 60px; height: 60px; border-radius: 16px;
   display: flex; align-items: center; justify-content: center;
-  font-size: 28px; flex-shrink: 0;
+  font-size: 30px; flex-shrink: 0;
+  transition: transform .3s;
 }
-.lost-icon-wrap.lost  { background: #fef0f0; }
-.lost-icon-wrap.found { background: #f0f9eb; }
+.lost-card:hover .lost-icon-wrap { transform: scale(1.08); }
+.lost-icon-wrap.lost  { background: linear-gradient(135deg, #fef0f0, #ffe0e0); }
+.lost-icon-wrap.found { background: linear-gradient(135deg, #f0f9eb, #ddf0d0); }
 
 .lost-body { flex: 1; min-width: 0; }
-.lost-header { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
+.lost-header { display: flex; gap: 8px; align-items: center; margin-bottom: 10px; flex-wrap: wrap; }
 .lost-type {
-  font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 4px;
+  font-size: 12px; font-weight: 600; padding: 4px 12px; border-radius: 6px;
 }
 .lost-type.lost  { background: #fef0f0; color: #e63946; }
 .lost-type.found { background: #f0f9eb; color: #409e3f; }
 .lost-category {
   font-size: 12px; background: #f5f5f5; color: #888;
-  padding: 3px 10px; border-radius: 4px;
+  padding: 4px 12px; border-radius: 6px;
 }
 .closed-badge {
   font-size: 11px; background: #fef0f0; color: #f56c6c;
-  padding: 2px 8px; border-radius: 4px;
+  padding: 3px 10px; border-radius: 4px; font-weight: 600;
 }
 
-.lost-body h3 { font-size: 17px; font-weight: 700; color: #222; margin-bottom: 4px; }
+.lost-body h3 { font-size: 18px; font-weight: 700; color: #222; margin-bottom: 6px; }
 .lost-desc {
-  font-size: 13px; color: #888; margin-bottom: 10px; line-height: 1.5;
+  font-size: 13px; color: #888; margin-bottom: 12px; line-height: 1.6;
   display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
 }
-.lost-info { display: flex; gap: 18px; font-size: 12px; color: #aaa; flex-wrap: wrap; }
+.lost-info {
+  display: flex; gap: 20px; font-size: 12px; color: #aaa;
+  flex-wrap: wrap; padding-top: 12px; border-top: 1px solid #f5f5f5;
+}
 </style>

@@ -19,24 +19,27 @@ withDefaults(defineProps<{
 <style scoped>
 .empty-state {
   text-align: center;
-  padding: 64px 24px;
-  color: #9ca3af;
+  padding: 72px 24px;
+  background: #fff;
+  border-radius: 16px;
+  border: 2px dashed #e8ecf2;
 }
 
 .empty-icon {
-  font-size: 48px;
-  margin-bottom: 16px;
+  font-size: 52px;
+  margin-bottom: 18px;
+  opacity: .6;
 }
 
 .empty-text {
   font-size: 16px;
-  font-weight: 500;
+  font-weight: 600;
   color: #6b7280;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
 }
 
 .empty-hint {
   font-size: 13px;
-  color: #9ca3af;
+  color: #aaa;
 }
 </style>

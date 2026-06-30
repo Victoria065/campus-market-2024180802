@@ -21,3 +21,7 @@ export function getTrades(): Promise<TradeItem[]> {
 export function getTradeById(id: number): Promise<TradeItem> {
   return http.get(`/trades/${id}`).then((res) => res.data)
 }
+
+export function createTrade(data: Omit<TradeItem, 'id'>): Promise<TradeItem> {
+  return http.post('/trades', data).then((res) => res.data)
+}

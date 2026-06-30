@@ -20,3 +20,7 @@ export function getLostFounds(): Promise<LostFoundItem[]> {
 export function getLostFoundById(id: number): Promise<LostFoundItem> {
   return http.get(`/lostFounds/${id}`).then((res) => res.data)
 }
+
+export function createLostFound(data: Omit<LostFoundItem, 'id'>): Promise<LostFoundItem> {
+  return http.post('/lostFounds', data).then((res) => res.data)
+}

@@ -1,7 +1,7 @@
 {
   "trades": [
     {
-      "id": 1,
+      "id": "1",
       "title": "高等数学（第七版）上册",
       "price": 15,
       "category": "教材教辅",
@@ -14,7 +14,7 @@
       "status": "selling"
     },
     {
-      "id": 2,
+      "id": "2",
       "title": "大学英语四级真题集（2024版）",
       "price": 8,
       "category": "教材教辅",
@@ -27,7 +27,7 @@
       "status": "selling"
     },
     {
-      "id": 3,
+      "id": "3",
       "title": "Cherry MX 红轴机械键盘",
       "price": 120,
       "category": "电子产品",
@@ -40,7 +40,7 @@
       "status": "selling"
     },
     {
-      "id": 4,
+      "id": "4",
       "title": "折叠床上桌 宿舍学习桌",
       "price": 25,
       "category": "生活用品",
@@ -53,7 +53,7 @@
       "status": "reserved"
     },
     {
-      "id": 5,
+      "id": "5",
       "title": "AirPods Pro 第二代",
       "price": 680,
       "category": "电子产品",
@@ -66,7 +66,7 @@
       "status": "selling"
     },
     {
-      "id": 6,
+      "id": "6",
       "title": "冬天加厚棉被 双人款",
       "price": 40,
       "category": "生活用品",
@@ -79,7 +79,7 @@
       "status": "sold"
     },
     {
-      "id": 7,
+      "id": "7",
       "title": "瑜伽垫 加厚防滑 10mm",
       "price": 20,
       "category": "生活用品",
@@ -90,11 +90,24 @@
       "image": "",
       "description": "健身用了半年，已清洁消毒，送绑带方便携带，学校体育馆自取。",
       "status": "selling"
+    },
+    {
+      "title": "低价甩卖",
+      "price": 2,
+      "category": "生活用品",
+      "condition": "有使用痕迹",
+      "seller": "我",
+      "publishTime": "2026/6/30 09:22:12",
+      "location": "西苑",
+      "image": "",
+      "description": "低价出售，有意者私",
+      "status": "selling",
+      "id": "d8geRod7x20"
     }
   ],
   "lostFounds": [
     {
-      "id": 1,
+      "id": "1",
       "type": "lost",
       "itemName": "黑色卡西欧计算器",
       "category": "学习用品",
@@ -106,7 +119,7 @@
       "status": "open"
     },
     {
-      "id": 2,
+      "id": "2",
       "type": "found",
       "itemName": "银色U盘 金士顿 32GB",
       "category": "电子产品",
@@ -118,7 +131,7 @@
       "status": "open"
     },
     {
-      "id": 3,
+      "id": "3",
       "type": "lost",
       "itemName": "校园一卡通",
       "category": "证件卡片",
@@ -130,7 +143,7 @@
       "status": "closed"
     },
     {
-      "id": 4,
+      "id": "4",
       "type": "found",
       "itemName": "蓝色保温杯",
       "category": "生活用品",
@@ -142,7 +155,7 @@
       "status": "open"
     },
     {
-      "id": 5,
+      "id": "5",
       "type": "lost",
       "itemName": "黑色双肩包",
       "category": "箱包",
@@ -154,7 +167,7 @@
       "status": "open"
     },
     {
-      "id": 6,
+      "id": "6",
       "type": "found",
       "itemName": "白色无线耳机充电仓",
       "category": "电子产品",
@@ -164,11 +177,23 @@
       "contactPhone": "133****0123",
       "description": "在思源楼走廊长椅上捡到，充电仓带保护壳（有卡通贴纸），请失主联系并说出贴纸图案。",
       "status": "closed"
+    },
+    {
+      "type": "lost",
+      "itemName": "键盘丢失",
+      "category": "电子产品",
+      "location": "A-301",
+      "date": "2026-06-29",
+      "contactName": "我",
+      "contactPhone": "微信/QQ 联系",
+      "description": "上午在a教上课后就没看到了",
+      "status": "open",
+      "id": "SsxTeSUDfHg"
     }
   ],
   "groupBuys": [
     {
-      "id": 1,
+      "id": "1",
       "title": "必胜客双人套餐拼单",
       "type": "外卖拼单",
       "targetCount": 4,
@@ -181,7 +206,7 @@
       "status": "recruiting"
     },
     {
-      "id": 2,
+      "id": "2",
       "title": "考研数学刷题搭子",
       "type": "学习搭子",
       "targetCount": 4,
@@ -194,7 +219,7 @@
       "status": "recruiting"
     },
     {
-      "id": 3,
+      "id": "3",
       "title": "周末篮球局 4v4",
       "type": "运动组队",
       "targetCount": 8,
@@ -207,7 +232,7 @@
       "status": "recruiting"
     },
     {
-      "id": 4,
+      "id": "4",
       "title": "桌游之夜——三国杀",
       "type": "兴趣小组",
       "targetCount": 8,
@@ -220,7 +245,7 @@
       "status": "full"
     },
     {
-      "id": 5,
+      "id": "5",
       "title": "喜茶外卖拼团 买一送一",
       "type": "外卖拼单",
       "targetCount": 6,
@@ -233,7 +258,7 @@
       "status": "recruiting"
     },
     {
-      "id": 6,
+      "id": "6",
       "title": "摄影扫街小组",
       "type": "兴趣小组",
       "targetCount": 6,
@@ -244,11 +269,24 @@
       "contactInfo": "小红书 @campus_photo",
       "description": "寻找同样喜欢摄影的同学一起出去拍照，手机相机不限，每周至少一次外拍活动，一起记录校园生活。已有3人，再找3人。",
       "status": "recruiting"
+    },
+    {
+      "title": "瑞幸小黄油美式拼单",
+      "type": "外卖拼单",
+      "targetCount": 2,
+      "currentCount": 0,
+      "deadline": "2026-07-01 00:00",
+      "location": "东苑",
+      "organizer": "我",
+      "contactInfo": "微信/QQ 联系",
+      "description": "淘宝拼单，有意者私信",
+      "status": "recruiting",
+      "id": "-0rUaAW7aGk"
     }
   ],
   "errands": [
     {
-      "id": 1,
+      "id": "1",
       "title": "代取快递：中通 2件",
       "taskType": "代取快递",
       "reward": 5,
@@ -260,7 +298,7 @@
       "status": "open"
     },
     {
-      "id": 2,
+      "id": "2",
       "title": "代买感冒药 感康一盒",
       "taskType": "代买物品",
       "reward": 8,
@@ -272,7 +310,7 @@
       "status": "accepted"
     },
     {
-      "id": 3,
+      "id": "3",
       "title": "帮忙打印实习材料 10页",
       "taskType": "代办事务",
       "reward": 3,
@@ -284,7 +322,7 @@
       "status": "open"
     },
     {
-      "id": 4,
+      "id": "4",
       "title": "送一份实验报告到实验室",
       "taskType": "代送文件",
       "reward": 4,
@@ -296,7 +334,7 @@
       "status": "open"
     },
     {
-      "id": 5,
+      "id": "5",
       "title": "代取快递：顺丰 键盘",
       "taskType": "代取快递",
       "reward": 6,
@@ -308,7 +346,7 @@
       "status": "done"
     },
     {
-      "id": 6,
+      "id": "6",
       "title": "帮忙去教务处盖章",
       "taskType": "代办事务",
       "reward": 10,
@@ -319,5 +357,6 @@
       "description": "需要到致远楼801取一份成绩单，然后到行政楼2楼教务处盖章，再送回致远楼801。上午9点-11点都可以，帮忙跑一趟。",
       "status": "open"
     }
-  ]
+  ],
+  "$schema": "./node_modules/json-server/schema.json"
 }

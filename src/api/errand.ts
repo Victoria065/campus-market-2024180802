@@ -20,3 +20,7 @@ export function getErrands(): Promise<ErrandItem[]> {
 export function getErrandById(id: number): Promise<ErrandItem> {
   return http.get(`/errands/${id}`).then((res) => res.data)
 }
+
+export function createErrand(data: Omit<ErrandItem, 'id'>): Promise<ErrandItem> {
+  return http.post('/errands', data).then((res) => res.data)
+}

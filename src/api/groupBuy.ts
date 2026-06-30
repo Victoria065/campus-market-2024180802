@@ -21,3 +21,7 @@ export function getGroupBuys(): Promise<GroupBuyItem[]> {
 export function getGroupBuyById(id: number): Promise<GroupBuyItem> {
   return http.get(`/groupBuys/${id}`).then((res) => res.data)
 }
+
+export function createGroupBuy(data: Omit<GroupBuyItem, 'id'>): Promise<GroupBuyItem> {
+  return http.post('/groupBuys', data).then((res) => res.data)
+}

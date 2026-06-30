@@ -32,12 +32,12 @@
       >
         <div class="goods-cover">
           <span class="goods-emoji">{{ categoryEmoji(item.category) }}</span>
+          <span class="goods-condition-tag">{{ item.condition }}</span>
           <span v-if="item.status !== 'selling'" class="cover-badge">{{ statusLabel(item.status) }}</span>
         </div>
         <div class="goods-info">
           <span class="goods-category">{{ item.category }}</span>
           <h3>{{ item.title }}</h3>
-          <p class="goods-condition">{{ item.condition }}</p>
           <div class="goods-bottom">
             <span class="goods-price">¥{{ item.price }}</span>
             <span class="goods-location">📍 {{ item.location }}</span>
@@ -83,83 +83,106 @@ onMounted(async () => {
 <style scoped>
 .page { padding: 0; }
 
-/* ── banner ── */
+/* ── Banner ── */
 .page-banner {
-  border-radius: 14px;
-  padding: 32px 28px;
-  margin-bottom: 24px;
-  color: #fff;
+  border-radius: 16px; padding: 36px 32px; margin-bottom: 24px; color: #fff;
+  position: relative; overflow: hidden;
 }
-.banner-trade { background: linear-gradient(135deg, #409eff, #2d6cdf); }
-.banner-text h1 { font-size: 26px; font-weight: 800; margin-bottom: 4px; }
+.banner-trade {
+  background: linear-gradient(135deg, #409eff, #2d6cdf);
+  box-shadow: 0 4px 20px rgba(64, 158, 255, 0.2);
+}
+.banner-text h1 { font-size: 28px; font-weight: 800; margin-bottom: 6px; }
 .banner-text p  { font-size: 14px; opacity: .85; }
 
-/* ── tabs ── */
+/* ── Tabs ── */
 .category-tabs {
   display: flex; gap: 10px; margin-bottom: 24px; flex-wrap: wrap;
 }
 .tab {
-  padding: 8px 18px; border-radius: 22px; font-size: 13px; font-weight: 500;
-  color: #555; background: #fff; border: 1px solid #e5e5e5;
-  cursor: pointer; transition: all .2s; user-select: none;
+  padding: 8px 20px; border-radius: 24px; font-size: 13px; font-weight: 500;
+  color: #555; background: #fff; border: 1.5px solid #e8e8e8;
+  cursor: pointer; transition: all .25s; user-select: none;
 }
-.tab:hover { border-color: #409eff; color: #409eff; }
+.tab:hover { border-color: #409eff; color: #409eff; background: #f5f9ff; }
 .tab.active {
-  background: #409eff; color: #fff; border-color: #409eff;
-  box-shadow: 0 4px 12px rgba(64,158,255,.35);
+  background: linear-gradient(135deg, #409eff, #5b8def);
+  color: #fff; border-color: transparent;
+  box-shadow: 0 4px 14px rgba(64, 158, 255, .35);
 }
 
-/* ── loading ── */
-.loading-box {
-  text-align: center; padding: 80px 0; color: #999;
-}
+/* ── Loading ── */
+.loading-box { text-align: center; padding: 80px 0; color: #999; }
 .spinner {
-  display: inline-block; width: 32px; height: 32px;
-  border: 3px solid #e5e5e5; border-top-color: #409eff;
-  border-radius: 50%; animation: spin .7s linear infinite; margin-bottom: 12px;
+  display: inline-block; width: 36px; height: 36px;
+  border: 3px solid #e8e8e8; border-top-color: #409eff;
+  border-radius: 50%; animation: spin .7s linear infinite; margin-bottom: 14px;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* ── grid ── */
+/* ── Grid ── */
 .goods-grid {
-  display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px;
 }
+
 .goods-card {
-  background: #fff; border-radius: 12px; overflow: hidden;
+  background: #fff; border-radius: 14px; overflow: hidden;
   text-decoration: none; color: inherit;
   border: 1px solid #f0f0f0;
-  transition: all .25s;
+  transition: all .3s ease;
+  display: flex; flex-direction: column;
 }
 .goods-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 28px rgba(0,0,0,.1);
+  transform: translateY(-6px);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, .1);
   border-color: #d0d7ff;
 }
-.goods-card.is-closed { opacity: .55; }
+.goods-card.is-closed { opacity: .5; }
+.goods-card.is-closed:hover { opacity: .7; }
 
 .goods-cover {
-  height: 110px; background: linear-gradient(135deg, #f0f4ff, #e8edfc);
-  display: flex; align-items: center; justify-content: center; position: relative;
+  height: 130px;
+  background: linear-gradient(135deg, #f0f4ff, #e4eafc);
+  display: flex; align-items: center; justify-content: center;
+  position: relative;
 }
-.goods-emoji { font-size: 42px; }
-.cover-badge {
-  position: absolute; top: 8px; right: 8px;
-  font-size: 11px; background: rgba(0,0,0,.5); color: #fff;
-  padding: 3px 8px; border-radius: 4px;
+.goods-emoji { font-size: 48px; transition: transform .3s; }
+.goods-card:hover .goods-emoji { transform: scale(1.12); }
+
+.goods-condition-tag {
+  position: absolute; bottom: 8px; left: 8px;
+  font-size: 11px; background: rgba(0,0,0,.45); color: #fff;
+  padding: 3px 10px; border-radius: 10px;
+  backdrop-filter: blur(4px);
 }
 
-.goods-info { padding: 14px; }
+.cover-badge {
+  position: absolute; top: 10px; right: 10px;
+  font-size: 11px; font-weight: 600;
+  background: rgba(245, 108, 108, .85); color: #fff;
+  padding: 4px 10px; border-radius: 6px;
+  backdrop-filter: blur(4px);
+}
+
+.goods-info { padding: 16px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
 .goods-category {
-  font-size: 11px; background: #ecf5ff; color: #409eff;
-  padding: 3px 8px; border-radius: 4px; display: inline-block; margin-bottom: 8px;
+  font-size: 11px; font-weight: 600;
+  background: linear-gradient(135deg, #ecf5ff, #d7e6ff);
+  color: #409eff; padding: 4px 10px; border-radius: 6px;
+  display: inline-block; align-self: flex-start;
 }
 .goods-info h3 {
-  font-size: 14px; font-weight: 600; color: #222;
-  margin-bottom: 4px;
+  font-size: 15px; font-weight: 600; color: #222; line-height: 1.4;
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
-.goods-condition { font-size: 12px; color: #999; margin-bottom: 10px; }
-.goods-bottom { display: flex; justify-content: space-between; align-items: center; }
-.goods-price { font-size: 20px; font-weight: 800; color: #f56c6c; }
+.goods-bottom { display: flex; justify-content: space-between; align-items: center; margin-top: auto; }
+.goods-price { font-size: 22px; font-weight: 800; color: #f56c6c; letter-spacing: -.5px; }
 .goods-location { font-size: 12px; color: #aaa; }
+
+@media (max-width: 1024px) {
+  .goods-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 640px) {
+  .goods-grid { grid-template-columns: 1fr; }
+}
 </style>
