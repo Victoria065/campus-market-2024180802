@@ -238,8 +238,10 @@ import { createTrade } from '@/api/trade'
 import { createLostFound } from '@/api/lostFound'
 import { createGroupBuy } from '@/api/groupBuy'
 import { createErrand } from '@/api/errand'
+import { useUserStore } from '@/stores/user'
 
 const router = useRouter()
+const userStore = useUserStore()
 
 // ==================== 发布类型定义 ====================
 const publishTypes = [
@@ -287,9 +289,9 @@ interface PublishForm {
   deliveryLocation: string
 }
 
-// 固定发布人信息（Day5 将接入 Pinia 用户状态）
-const DEFAULT_PUBLISHER = '我'
-const DEFAULT_CONTACT = '微信/QQ 联系'
+// 发布人信息从用户 Store 中读取（Day5 已接入 Pinia 用户状态）
+const publisherName = userStore.displayName
+const publisherContact = userStore.studentId + ' · ' + userStore.college
 
 const emptyForm = (): PublishForm => ({
   title: '',
@@ -448,7 +450,7 @@ async function handleSubmit() {
         price: form.price!,
         category: form.category,
         condition: form.condition,
-        seller: DEFAULT_PUBLISHER,
+        seller: publisherName,
         publishTime: new Date().toLocaleString('zh-CN', { hour12: false }),
         location: form.location.trim(),
         image: '',
@@ -464,8 +466,8 @@ async function handleSubmit() {
         category: form.category,
         location: form.location.trim(),
         date: form.lfDate,
-        contactName: DEFAULT_PUBLISHER,
-        contactPhone: DEFAULT_CONTACT,
+        contactName: publisherName,
+        contactPhone: publisherContact,
         description: form.description.trim(),
         status: 'open',
       })
@@ -479,8 +481,8 @@ async function handleSubmit() {
         currentCount: 0,
         deadline: form.deadline,
         location: form.location.trim(),
-        organizer: DEFAULT_PUBLISHER,
-        contactInfo: DEFAULT_CONTACT,
+        organizer: publisherName,
+        contactInfo: publisherContact,
         description: form.description.trim(),
         status: 'recruiting',
       })
@@ -494,7 +496,7 @@ async function handleSubmit() {
         pickupLocation: form.pickupLocation.trim(),
         deliveryLocation: form.deliveryLocation.trim(),
         deadline: form.deadline,
-        publisher: DEFAULT_PUBLISHER,
+        publisher: publisherName,
         description: form.description.trim(),
         status: 'open',
       })

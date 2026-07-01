@@ -23,27 +23,36 @@
     </div>
 
     <div v-else-if="filteredList.length" class="goods-grid">
-      <router-link
+      <div
         v-for="item in filteredList"
         :key="item.id"
-        :to="`/trade/${item.id}`"
         class="goods-card"
         :class="{ 'is-closed': item.status !== 'selling' }"
       >
-        <div class="goods-cover">
-          <span class="goods-emoji">{{ categoryEmoji(item.category) }}</span>
-          <span class="goods-condition-tag">{{ item.condition }}</span>
-          <span v-if="item.status !== 'selling'" class="cover-badge">{{ statusLabel(item.status) }}</span>
-        </div>
-        <div class="goods-info">
-          <span class="goods-category">{{ item.category }}</span>
-          <h3>{{ item.title }}</h3>
-          <div class="goods-bottom">
-            <span class="goods-price">¥{{ item.price }}</span>
-            <span class="goods-location">📍 {{ item.location }}</span>
+        <router-link :to="`/trade/${item.id}`" class="goods-link">
+          <div class="goods-cover">
+            <span class="goods-emoji">{{ categoryEmoji(item.category) }}</span>
+            <span class="goods-condition-tag">{{ item.condition }}</span>
+            <span v-if="item.status !== 'selling'" class="cover-badge">{{ statusLabel(item.status) }}</span>
           </div>
-        </div>
-      </router-link>
+          <div class="goods-info">
+            <span class="goods-category">{{ item.category }}</span>
+            <h3>{{ item.title }}</h3>
+            <div class="goods-bottom">
+              <span class="goods-price">¥{{ item.price }}</span>
+              <span class="goods-location">📍 {{ item.location }}</span>
+            </div>
+          </div>
+        </router-link>
+        <button
+          class="fav-btn"
+          :class="{ 'is-fav': favStore.isFavorited('trade', item.id) }"
+          :title="favStore.isFavorited('trade', item.id) ? '取消收藏' : '收藏'"
+          @click.prevent="favStore.toggleFavorite('trade', item.id, item.title)"
+        >
+          {{ favStore.isFavorited('trade', item.id) ? '⭐' : '☆' }}
+        </button>
+      </div>
     </div>
 
     <EmptyState v-else message="暂无商品" hint="还没有人发布二手商品，快去发布第一个吧" />
@@ -54,6 +63,9 @@
 import { ref, computed, onMounted } from 'vue'
 import { getTrades, type TradeItem } from '../api/trade'
 import EmptyState from '../components/EmptyState.vue'
+import { useFavoriteStore } from '../stores/favorite'
+
+const favStore = useFavoriteStore()
 
 const trades = ref<TradeItem[]>([])
 const loading = ref(true)
@@ -127,10 +139,10 @@ onMounted(async () => {
 
 .goods-card {
   background: #fff; border-radius: 14px; overflow: hidden;
-  text-decoration: none; color: inherit;
   border: 1px solid #f0f0f0;
   transition: all .3s ease;
   display: flex; flex-direction: column;
+  position: relative;
 }
 .goods-card:hover {
   transform: translateY(-6px);
@@ -139,6 +151,11 @@ onMounted(async () => {
 }
 .goods-card.is-closed { opacity: .5; }
 .goods-card.is-closed:hover { opacity: .7; }
+
+.goods-link {
+  text-decoration: none; color: inherit;
+  display: flex; flex-direction: column; flex: 1;
+}
 
 .goods-cover {
   height: 130px;
@@ -178,6 +195,43 @@ onMounted(async () => {
 .goods-bottom { display: flex; justify-content: space-between; align-items: center; margin-top: auto; }
 .goods-price { font-size: 22px; font-weight: 800; color: #f56c6c; letter-spacing: -.5px; }
 .goods-location { font-size: 12px; color: #aaa; }
+
+/* ── Favorite Button ── */
+.fav-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1.5px solid #e8e8e8;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all .25s;
+  z-index: 2;
+  padding: 0;
+  line-height: 1;
+  backdrop-filter: blur(4px);
+}
+.fav-btn:hover {
+  transform: scale(1.15);
+  border-color: #f0c040;
+  background: rgba(255, 248, 220, 0.95);
+}
+.fav-btn.is-fav {
+  border-color: #f0c040;
+  background: rgba(255, 248, 220, 0.95);
+  animation: fav-pop .3s ease;
+}
+@keyframes fav-pop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.3); }
+  100% { transform: scale(1); }
+}
 
 @media (max-width: 1024px) {
   .goods-grid { grid-template-columns: repeat(2, 1fr); }

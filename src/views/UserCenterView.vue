@@ -7,18 +7,21 @@
       </div>
     </div>
 
+    <!-- ============ 用户资料卡片 ============ -->
     <div class="profile-card">
       <div class="avatar-section">
-        <div class="big-avatar">😊</div>
-        <button class="edit-btn">✏️ 编辑资料</button>
+        <div class="big-avatar">{{ userStore.displayAvatar }}</div>
+        <button class="edit-btn" @click="openEditDialog">✏️ 编辑资料</button>
       </div>
       <div class="profile-info">
-        <h2>用户昵称</h2>
-        <p>学号：2024XXXXXXXX</p>
-        <p>注册时间：2024年9月1日</p>
+        <h2>{{ userStore.displayName }}</h2>
+        <p>学号：{{ userStore.studentId }}</p>
+        <p>{{ userStore.college }} · {{ userStore.grade }}</p>
+        <p>注册时间：{{ userStore.registerTime }}</p>
       </div>
     </div>
 
+    <!-- ============ 统计卡片 ============ -->
     <div class="stats-row">
       <div class="stat-card">
         <div class="stat-icon" style="background:#ecf5ff;">📦</div>
@@ -27,7 +30,7 @@
       </div>
       <div class="stat-card">
         <div class="stat-icon" style="background:#fef7ed;">⭐</div>
-        <div class="stat-num">0</div>
+        <div class="stat-num">{{ favStore.count }}</div>
         <div class="stat-label">我的收藏</div>
       </div>
       <div class="stat-card">
@@ -42,7 +45,136 @@
       </div>
     </div>
 
-    <!-- 我的发布记录 -->
+    <!-- ============ 我的收藏 ============ -->
+    <section class="publish-section">
+      <h2 class="section-title">⭐ 我的收藏</h2>
+
+      <div v-if="favStore.count === 0" class="empty-hint">
+        <span class="empty-emoji">💛</span>
+        <p>还没有收藏任何内容</p>
+        <router-link to="/trade" class="go-publish">去浏览二手交易 →</router-link>
+      </div>
+
+      <template v-else>
+        <!-- 二手交易收藏 -->
+        <div v-if="favTrades.length" class="record-group">
+          <h3 class="group-title">
+            <span class="group-icon">🛒</span>二手交易
+            <span class="group-count">{{ favTrades.length }}</span>
+          </h3>
+          <div class="record-list">
+            <div
+              v-for="item in favTrades"
+              :key="'fav-trade-' + item.id"
+              class="record-card"
+            >
+              <div class="record-left">
+                <span class="record-emoji">🛒</span>
+                <div class="record-info">
+                  <span class="record-title">{{ item.title }}</span>
+                  <span class="record-meta">收藏于 {{ item.addedAt }}</span>
+                </div>
+              </div>
+              <div class="record-right">
+                <button
+                  class="unfav-btn"
+                  @click="favStore.removeFavorite('trade', item.id)"
+                >取消收藏</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 失物招领收藏 -->
+        <div v-if="favLostFounds.length" class="record-group">
+          <h3 class="group-title">
+            <span class="group-icon">🔍</span>失物招领
+            <span class="group-count">{{ favLostFounds.length }}</span>
+          </h3>
+          <div class="record-list">
+            <div
+              v-for="item in favLostFounds"
+              :key="'fav-lf-' + item.id"
+              class="record-card"
+            >
+              <div class="record-left">
+                <span class="record-emoji">🔍</span>
+                <div class="record-info">
+                  <span class="record-title">{{ item.title }}</span>
+                  <span class="record-meta">收藏于 {{ item.addedAt }}</span>
+                </div>
+              </div>
+              <div class="record-right">
+                <button
+                  class="unfav-btn"
+                  @click="favStore.removeFavorite('lostFound', item.id)"
+                >取消收藏</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 拼单搭子收藏 -->
+        <div v-if="favGroupBuys.length" class="record-group">
+          <h3 class="group-title">
+            <span class="group-icon">👥</span>拼单搭子
+            <span class="group-count">{{ favGroupBuys.length }}</span>
+          </h3>
+          <div class="record-list">
+            <div
+              v-for="item in favGroupBuys"
+              :key="'fav-gb-' + item.id"
+              class="record-card"
+            >
+              <div class="record-left">
+                <span class="record-emoji">👥</span>
+                <div class="record-info">
+                  <span class="record-title">{{ item.title }}</span>
+                  <span class="record-meta">收藏于 {{ item.addedAt }}</span>
+                </div>
+              </div>
+              <div class="record-right">
+                <button
+                  class="unfav-btn"
+                  @click="favStore.removeFavorite('groupBuy', item.id)"
+                >取消收藏</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 跑腿委托收藏 -->
+        <div v-if="favErrands.length" class="record-group">
+          <h3 class="group-title">
+            <span class="group-icon">🏃</span>跑腿委托
+            <span class="group-count">{{ favErrands.length }}</span>
+          </h3>
+          <div class="record-list">
+            <div
+              v-for="item in favErrands"
+              :key="'fav-er-' + item.id"
+              class="record-card"
+            >
+              <div class="record-left">
+                <span class="record-emoji">🏃</span>
+                <div class="record-info">
+                  <span class="record-title">{{ item.title }}</span>
+                  <span class="record-meta">收藏于 {{ item.addedAt }}</span>
+                </div>
+              </div>
+              <div class="record-right">
+                <button
+                  class="unfav-btn"
+                  @click="favStore.removeFavorite('errand', item.id)"
+                >取消收藏</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </template>
+    </section>
+
+    <!-- ============ 我的发布记录 ============ -->
     <section class="publish-section">
       <h2 class="section-title">📋 我的发布记录</h2>
 
@@ -177,7 +309,7 @@
       </template>
     </section>
 
-    <!-- 快捷入口 -->
+    <!-- ============ 快捷入口 ============ -->
     <div class="menu-section">
       <router-link to="/publish" class="menu-item">📝 发布新内容</router-link>
       <router-link to="/trade" class="menu-item">🛒 浏览二手交易</router-link>
@@ -186,16 +318,94 @@
       <router-link to="/errand" class="menu-item">🏃 浏览跑腿委托</router-link>
       <div class="menu-item">⚙️ 账号设置</div>
     </div>
+
+    <!-- ============ 编辑资料弹窗 ============ -->
+    <el-dialog v-model="showEditDialog" title="✏️ 编辑个人资料" width="460px" destroy-on-close>
+      <div class="edit-form">
+        <div class="edit-avatar-picker">
+          <span class="edit-avatar-label">头像</span>
+          <div class="avatar-options">
+            <button
+              v-for="emoji in avatarOptions"
+              :key="emoji"
+              class="avatar-option"
+              :class="{ selected: editForm.avatar === emoji }"
+              @click="editForm.avatar = emoji"
+            >{{ emoji }}</button>
+          </div>
+        </div>
+        <el-input v-model="editForm.username" placeholder="请输入昵称">
+          <template #prepend>昵称</template>
+        </el-input>
+        <el-input v-model="editForm.studentId" placeholder="请输入学号">
+          <template #prepend>学号</template>
+        </el-input>
+        <el-input v-model="editForm.college" placeholder="请输入学院">
+          <template #prepend>学院</template>
+        </el-input>
+        <el-input v-model="editForm.grade" placeholder="请输入年级">
+          <template #prepend>年级</template>
+        </el-input>
+      </div>
+      <template #footer>
+        <el-button @click="showEditDialog = false">取消</el-button>
+        <el-button type="primary" @click="saveProfile">保存修改</el-button>
+      </template>
+    </el-dialog>
   </main>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, reactive, computed, onMounted } from 'vue'
+import { ElMessage } from 'element-plus'
 import { getTrades, type TradeItem } from '../api/trade'
 import { getLostFounds, type LostFoundItem } from '../api/lostFound'
 import { getGroupBuys, type GroupBuyItem } from '../api/groupBuy'
 import { getErrands, type ErrandItem } from '../api/errand'
+import { useUserStore } from '../stores/user'
+import { useFavoriteStore } from '../stores/favorite'
 
+const userStore = useUserStore()
+const favStore = useFavoriteStore()
+
+// ==================== 编辑资料 ====================
+const showEditDialog = ref(false)
+const avatarOptions = ['👨‍🎓', '👩‍🎓', '😊', '😎', '🤓', '🦊', '🐱', '🐶', '🌟', '🎓']
+
+const editForm = reactive({
+  username: '',
+  studentId: '',
+  college: '',
+  grade: '',
+  avatar: '',
+})
+
+function openEditDialog() {
+  editForm.username = userStore.username
+  editForm.studentId = userStore.studentId
+  editForm.college = userStore.college
+  editForm.grade = userStore.grade
+  editForm.avatar = userStore.avatar
+  showEditDialog.value = true
+}
+
+function saveProfile() {
+  if (!editForm.username.trim()) {
+    ElMessage.warning('昵称不能为空')
+    return
+  }
+  userStore.updateProfile({
+    username: editForm.username.trim(),
+    studentId: editForm.studentId.trim(),
+    college: editForm.college.trim(),
+    grade: editForm.grade.trim(),
+    avatar: editForm.avatar,
+  })
+  showEditDialog.value = false
+  ElMessage.success('个人资料已更新')
+}
+
+// ==================== 我的发布 ====================
 const myTrades = ref<TradeItem[]>([])
 const myLostFounds = ref<LostFoundItem[]>([])
 const myGroupBuys = ref<GroupBuyItem[]>([])
@@ -206,6 +416,13 @@ const totalPublished = computed(
   () => myTrades.value.length + myLostFounds.value.length + myGroupBuys.value.length + myErrands.value.length
 )
 
+// ==================== 我的收藏（分组） ====================
+const favTrades = computed(() => favStore.favoritedByType('trade'))
+const favLostFounds = computed(() => favStore.favoritedByType('lostFound'))
+const favGroupBuys = computed(() => favStore.favoritedByType('groupBuy'))
+const favErrands = computed(() => favStore.favoritedByType('errand'))
+
+// ==================== 辅助函数 ====================
 function tradeEmoji(cat: string): string {
   const map: Record<string, string> = { '教材教辅': '📖', '电子产品': '💻', '生活用品': '🏠' }
   return map[cat] || '📦'
@@ -226,6 +443,7 @@ function errandStatus(status: string): string {
   return map[status] || status
 }
 
+// ==================== 数据加载 ====================
 onMounted(async () => {
   try {
     const [trades, lostFounds, groupBuys, errands] = await Promise.all([
@@ -234,8 +452,6 @@ onMounted(async () => {
       getGroupBuys(),
       getErrands(),
     ])
-    // Day4：发布人使用固定值 "我"，因此筛选 publishUser/publisher/organizer/seller 为 "我" 的记录
-    // 同时保留所有数据展示（因为当前所有数据都可视为当前用户的）
     myTrades.value = trades
     myLostFounds.value = lostFounds
     myGroupBuys.value = groupBuys
@@ -312,7 +528,7 @@ onMounted(async () => {
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* ── Publish records section ── */
+/* ── Publish / Favorite sections ── */
 .publish-section {
   background: #fff; border: 1px solid #f0f0f0; border-radius: 16px;
   padding: 28px; margin-bottom: 24px;
@@ -367,6 +583,14 @@ onMounted(async () => {
 .record-arrow { font-size: 14px; color: #ccc; transition: all .2s; }
 .record-card:hover .record-arrow { color: #8b5cf6; transform: translateX(3px); }
 
+/* ── Unfavorite button ── */
+.unfav-btn {
+  font-size: 12px; color: #f56c6c; background: #fef0f0;
+  border: 1px solid #fbc4c4; padding: 4px 12px;
+  border-radius: 12px; cursor: pointer; transition: all .2s;
+}
+.unfav-btn:hover { background: #fde2e2; }
+
 /* ── Empty hint ── */
 .empty-hint {
   text-align: center; padding: 48px 0; color: #aaa;
@@ -396,6 +620,56 @@ onMounted(async () => {
 }
 .menu-item:last-child { border-bottom: none; }
 .menu-item:hover { background: #fafcff; color: #8b5cf6; padding-left: 30px; }
+
+/* ── Edit Profile Dialog ── */
+.edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.edit-avatar-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.edit-avatar-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #444;
+}
+
+.avatar-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.avatar-option {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 2px solid #e8e8e8;
+  background: #fafafa;
+  font-size: 22px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  padding: 0;
+}
+.avatar-option:hover {
+  border-color: #8b5cf6;
+  background: #f5f0ff;
+  transform: scale(1.1);
+}
+.avatar-option.selected {
+  border-color: #8b5cf6;
+  background: #ede0ff;
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
+}
 
 @media (max-width: 768px) {
   .stats-row { grid-template-columns: repeat(2, 1fr); }

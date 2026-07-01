@@ -8,11 +8,18 @@
       </div>
     </router-link>
     <AppNav />
+    <router-link to="/user" class="user-badge" v-if="userStore.isLoggedIn">
+      <span class="user-avatar">{{ userStore.displayAvatar }}</span>
+      <span class="user-name">{{ userStore.displayName }}</span>
+    </router-link>
   </header>
 </template>
 
 <script setup lang="ts">
 import AppNav from './AppNav.vue'
+import { useUserStore } from '@/stores/user'
+
+const userStore = useUserStore()
 </script>
 
 <style scoped>
@@ -75,11 +82,40 @@ import AppNav from './AppNav.vue'
   letter-spacing: 1px;
 }
 
+.user-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 24px;
+  background: linear-gradient(135deg, #f5f0ff, #ede0ff);
+  text-decoration: none;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+}
+.user-badge:hover {
+  background: linear-gradient(135deg, #ede0ff, #dcd0ff);
+  border-color: #c4b5e0;
+}
+
+.user-avatar {
+  font-size: 22px;
+}
+
+.user-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #5b3cc4;
+}
+
 @media (max-width: 768px) {
   .app-header {
     padding: 0 16px;
   }
   .slogan {
+    display: none;
+  }
+  .user-name {
     display: none;
   }
 }
