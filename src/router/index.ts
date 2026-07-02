@@ -51,13 +51,13 @@ const router = createRouter({
       path: '/publish',
       name: 'publish',
       component: PublishView,
-      meta: { title: '发布页面' }
+      meta: { title: '发布信息' }
     },
     {
       path: '/message',
       name: 'message',
       component: MessageView,
-      meta: { title: '消息页面' }
+      meta: { title: '消息中心' }
     },
     {
       path: '/user',

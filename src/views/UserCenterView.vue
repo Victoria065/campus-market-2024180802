@@ -178,10 +178,13 @@
     <section class="publish-section">
       <h2 class="section-title">📋 我的发布记录</h2>
 
-      <div v-if="loading" class="loading-box">
-        <span class="spinner"></span>
-        <p>正在加载...</p>
-      </div>
+      <LoadingState v-if="loading" text="正在加载发布记录..." />
+
+      <ErrorState
+        v-else-if="error"
+        :message="error"
+        @retry="loadMyPublish"
+      />
 
       <template v-else>
         <!-- 二手交易 -->
@@ -364,6 +367,8 @@ import { getGroupBuys, type GroupBuyItem } from '../api/groupBuy'
 import { getErrands, type ErrandItem } from '../api/errand'
 import { useUserStore } from '../stores/user'
 import { useFavoriteStore } from '../stores/favorite'
+import LoadingState from '../components/LoadingState.vue'
+import ErrorState from '../components/ErrorState.vue'
 
 const userStore = useUserStore()
 const favStore = useFavoriteStore()
@@ -411,6 +416,7 @@ const myLostFounds = ref<LostFoundItem[]>([])
 const myGroupBuys = ref<GroupBuyItem[]>([])
 const myErrands = ref<ErrandItem[]>([])
 const loading = ref(true)
+const error = ref('')
 
 const totalPublished = computed(
   () => myTrades.value.length + myLostFounds.value.length + myGroupBuys.value.length + myErrands.value.length
@@ -444,7 +450,9 @@ function errandStatus(status: string): string {
 }
 
 // ==================== 数据加载 ====================
-onMounted(async () => {
+async function loadMyPublish() {
+  loading.value = true
+  error.value = ''
   try {
     const [trades, lostFounds, groupBuys, errands] = await Promise.all([
       getTrades(),
@@ -456,11 +464,20 @@ onMounted(async () => {
     myLostFounds.value = lostFounds
     myGroupBuys.value = groupBuys
     myErrands.value = errands
-  } catch (err) {
+  } catch (err: any) {
     console.error('加载发布记录失败:', err)
+    if (err?.code === 'ERR_NETWORK' || err?.message?.includes('Network')) {
+      error.value = '无法连接到 Mock 服务，请确认已执行 pnpm mock'
+    } else {
+      error.value = '加载失败，请检查网络连接后重试'
+    }
   } finally {
     loading.value = false
   }
+}
+
+onMounted(() => {
+  loadMyPublish()
 })
 </script>
 

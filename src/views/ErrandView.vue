@@ -7,21 +7,33 @@
       </div>
     </div>
 
-    <div class="filter-bar">
-      <span
-        v-for="f in filters"
-        :key="f.value"
-        class="filter-btn"
-        :class="{ active: activeFilter === f.value }"
-        @click="activeFilter = f.value"
-      >{{ f.label }}</span>
+    <!-- 搜索 + 分类筛选 -->
+    <div class="toolbar">
+      <div class="search-wrap">
+        <SearchBar v-model="keyword" placeholder="搜索标题、任务类型、地点或描述..." />
+      </div>
+      <div class="filter-bar">
+        <span
+          v-for="f in filters"
+          :key="f.value"
+          class="filter-btn"
+          :class="{ active: activeFilter === f.value }"
+          @click="activeFilter = f.value"
+        >{{ f.label }}</span>
+      </div>
     </div>
 
-    <div v-if="loading" class="loading-box">
-      <span class="spinner"></span>
-      <p>正在加载...</p>
-    </div>
+    <!-- 加载状态 -->
+    <LoadingState v-if="loading" text="正在加载..." />
 
+    <!-- 错误状态 -->
+    <ErrorState
+      v-else-if="error"
+      :message="error"
+      @retry="loadData"
+    />
+
+    <!-- 列表 -->
     <div v-else-if="filteredList.length" class="errand-list">
       <div
         v-for="item in filteredList"
@@ -57,10 +69,23 @@
             <span>👤 {{ item.publisher }}</span>
           </div>
         </div>
+        <button
+          class="fav-btn"
+          :class="{ 'is-fav': favStore.isFavorited('errand', item.id) }"
+          :title="favStore.isFavorited('errand', item.id) ? '取消收藏' : '收藏'"
+          @click.prevent.stop="favStore.toggleFavorite('errand', item.id, item.title)"
+        >
+          {{ favStore.isFavorited('errand', item.id) ? '⭐' : '☆' }}
+        </button>
       </div>
     </div>
 
-    <EmptyState v-else message="暂无跑腿委托" hint="还没有人发布跑腿任务" />
+    <!-- 空状态 -->
+    <EmptyState
+      v-else
+      :message="keyword ? '未找到匹配的委托' : '暂无跑腿委托'"
+      :hint="keyword ? '试试其他关键词' : '还没有人发布跑腿任务'"
+    />
   </main>
 </template>
 
@@ -68,9 +93,17 @@
 import { ref, computed, onMounted } from 'vue'
 import { getErrands, type ErrandItem } from '../api/errand'
 import EmptyState from '../components/EmptyState.vue'
+import LoadingState from '../components/LoadingState.vue'
+import ErrorState from '../components/ErrorState.vue'
+import SearchBar from '../components/SearchBar.vue'
+import { useFavoriteStore } from '../stores/favorite'
+
+const favStore = useFavoriteStore()
 
 const items = ref<ErrandItem[]>([])
 const loading = ref(true)
+const error = ref('')
+const keyword = ref('')
 const activeFilter = ref('all')
 
 const filters = [
@@ -82,8 +115,26 @@ const filters = [
 ]
 
 const filteredList = computed(() => {
-  if (activeFilter.value === 'all') return items.value
-  return items.value.filter((i) => i.taskType === activeFilter.value)
+  let list = items.value
+
+  // 任务类型筛选
+  if (activeFilter.value !== 'all') {
+    list = list.filter((i) => i.taskType === activeFilter.value)
+  }
+
+  // 关键词搜索（标题/任务类型/取件地点/送达地点/描述）
+  if (keyword.value.trim()) {
+    const kw = keyword.value.trim().toLowerCase()
+    list = list.filter((i) =>
+      i.title.toLowerCase().includes(kw) ||
+      i.taskType.toLowerCase().includes(kw) ||
+      i.pickupLocation.toLowerCase().includes(kw) ||
+      i.deliveryLocation.toLowerCase().includes(kw) ||
+      i.description.toLowerCase().includes(kw)
+    )
+  }
+
+  return list
 })
 
 function taskEmoji(type: string): string {
@@ -106,8 +157,25 @@ function statusLabel(status: string): string {
   return map[status] || status
 }
 
-onMounted(async () => {
-  try { items.value = await getErrands() } finally { loading.value = false }
+async function loadData() {
+  loading.value = true
+  error.value = ''
+  try {
+    items.value = await getErrands()
+  } catch (err: any) {
+    console.error('加载跑腿委托失败:', err)
+    if (err?.code === 'ERR_NETWORK' || err?.message?.includes('Network')) {
+      error.value = '无法连接到 Mock 服务，请确认已执行 pnpm mock'
+    } else {
+      error.value = '加载失败，请检查网络连接后重试'
+    }
+  } finally {
+    loading.value = false
+  }
+}
+
+onMounted(() => {
+  loadData()
 })
 </script>
 
@@ -125,7 +193,16 @@ onMounted(async () => {
 .banner-text h1 { font-size: 28px; font-weight: 800; margin-bottom: 6px; }
 .banner-text p  { font-size: 14px; opacity: .85; }
 
-.filter-bar { display: flex; gap: 10px; margin-bottom: 24px; flex-wrap: wrap; }
+/* ── Toolbar ── */
+.toolbar {
+  margin-bottom: 20px;
+}
+.search-wrap {
+  margin-bottom: 16px;
+  max-width: 480px;
+}
+
+.filter-bar { display: flex; gap: 10px; flex-wrap: wrap; }
 .filter-btn {
   padding: 8px 20px; border-radius: 24px; font-size: 13px; font-weight: 500;
   color: #555; background: #fff; border: 1.5px solid #e8e8e8;
@@ -138,19 +215,12 @@ onMounted(async () => {
   box-shadow: 0 4px 14px rgba(103, 194, 58, .35);
 }
 
-.loading-box { text-align: center; padding: 80px 0; color: #999; }
-.spinner {
-  display: inline-block; width: 36px; height: 36px;
-  border: 3px solid #e8e8e8; border-top-color: #67c23a;
-  border-radius: 50%; animation: spin .7s linear infinite; margin-bottom: 14px;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
-
 .errand-list { display: flex; flex-direction: column; gap: 14px; }
 .errand-card {
   display: flex; gap: 20px;
   background: #fff; border: 1px solid #f0f0f0; border-radius: 14px;
   padding: 22px; transition: all .3s ease;
+  position: relative;
 }
 .errand-card:hover {
   transform: translateY(-3px);
@@ -222,5 +292,41 @@ onMounted(async () => {
 .errand-meta {
   display: flex; gap: 20px; font-size: 12px; color: #aaa;
   border-top: 1px solid #f5f5f5; padding-top: 14px;
+}
+
+/* ── Favorite Button ── */
+.fav-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1.5px solid #e8e8e8;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all .25s;
+  z-index: 2;
+  padding: 0;
+  line-height: 1;
+}
+.fav-btn:hover {
+  transform: scale(1.15);
+  border-color: #f0c040;
+  background: rgba(255, 248, 220, 0.95);
+}
+.fav-btn.is-fav {
+  border-color: #f0c040;
+  background: rgba(255, 248, 220, 0.95);
+  animation: fav-pop .3s ease;
+}
+@keyframes fav-pop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.3); }
+  100% { transform: scale(1); }
 }
 </style>

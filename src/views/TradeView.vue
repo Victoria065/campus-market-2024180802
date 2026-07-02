@@ -7,21 +7,33 @@
       </div>
     </div>
 
-    <div class="category-tabs">
-      <span
-        v-for="cat in categories"
-        :key="cat"
-        class="tab"
-        :class="{ active: activeCategory === cat }"
-        @click="activeCategory = cat"
-      >{{ cat }}</span>
+    <!-- 搜索 + 分类筛选 -->
+    <div class="toolbar">
+      <div class="search-wrap">
+        <SearchBar v-model="keyword" placeholder="搜索标题、分类、地点或描述..." />
+      </div>
+      <div class="category-tabs">
+        <span
+          v-for="cat in categories"
+          :key="cat"
+          class="tab"
+          :class="{ active: activeCategory === cat }"
+          @click="activeCategory = cat"
+        >{{ cat }}</span>
+      </div>
     </div>
 
-    <div v-if="loading" class="loading-box">
-      <span class="spinner"></span>
-      <p>正在加载商品...</p>
-    </div>
+    <!-- 加载状态 -->
+    <LoadingState v-if="loading" text="正在加载商品..." />
 
+    <!-- 错误状态 -->
+    <ErrorState
+      v-else-if="error"
+      :message="error"
+      @retry="loadData"
+    />
+
+    <!-- 列表 -->
     <div v-else-if="filteredList.length" class="goods-grid">
       <div
         v-for="item in filteredList"
@@ -48,14 +60,19 @@
           class="fav-btn"
           :class="{ 'is-fav': favStore.isFavorited('trade', item.id) }"
           :title="favStore.isFavorited('trade', item.id) ? '取消收藏' : '收藏'"
-          @click.prevent="favStore.toggleFavorite('trade', item.id, item.title)"
+          @click.prevent.stop="favStore.toggleFavorite('trade', item.id, item.title)"
         >
           {{ favStore.isFavorited('trade', item.id) ? '⭐' : '☆' }}
         </button>
       </div>
     </div>
 
-    <EmptyState v-else message="暂无商品" hint="还没有人发布二手商品，快去发布第一个吧" />
+    <!-- 空状态 -->
+    <EmptyState
+      v-else
+      :message="keyword ? '未找到匹配的商品' : '暂无商品'"
+      :hint="keyword ? '试试其他关键词' : '还没有人发布二手商品，快去发布第一个吧'"
+    />
   </main>
 </template>
 
@@ -63,18 +80,40 @@
 import { ref, computed, onMounted } from 'vue'
 import { getTrades, type TradeItem } from '../api/trade'
 import EmptyState from '../components/EmptyState.vue'
+import LoadingState from '../components/LoadingState.vue'
+import ErrorState from '../components/ErrorState.vue'
+import SearchBar from '../components/SearchBar.vue'
 import { useFavoriteStore } from '../stores/favorite'
 
 const favStore = useFavoriteStore()
 
 const trades = ref<TradeItem[]>([])
 const loading = ref(true)
+const error = ref('')
+const keyword = ref('')
 const activeCategory = ref('全部')
 const categories = ['全部', '教材教辅', '电子产品', '生活用品']
 
 const filteredList = computed(() => {
-  if (activeCategory.value === '全部') return trades.value
-  return trades.value.filter((t) => t.category === activeCategory.value)
+  let list = trades.value
+
+  // 分类筛选
+  if (activeCategory.value !== '全部') {
+    list = list.filter((t) => t.category === activeCategory.value)
+  }
+
+  // 关键词搜索（标题/分类/地点/描述）
+  if (keyword.value.trim()) {
+    const kw = keyword.value.trim().toLowerCase()
+    list = list.filter((t) =>
+      t.title.toLowerCase().includes(kw) ||
+      t.category.toLowerCase().includes(kw) ||
+      t.location.toLowerCase().includes(kw) ||
+      t.description.toLowerCase().includes(kw)
+    )
+  }
+
+  return list
 })
 
 function categoryEmoji(cat: string): string {
@@ -87,8 +126,25 @@ function statusLabel(status: string): string {
   return map[status] || status
 }
 
-onMounted(async () => {
-  try { trades.value = await getTrades() } finally { loading.value = false }
+async function loadData() {
+  loading.value = true
+  error.value = ''
+  try {
+    trades.value = await getTrades()
+  } catch (err: any) {
+    console.error('加载商品失败:', err)
+    if (err?.code === 'ERR_NETWORK' || err?.message?.includes('Network')) {
+      error.value = '无法连接到 Mock 服务，请确认已执行 pnpm mock'
+    } else {
+      error.value = '加载失败，请检查网络连接后重试'
+    }
+  } finally {
+    loading.value = false
+  }
+}
+
+onMounted(() => {
+  loadData()
 })
 </script>
 
@@ -107,9 +163,18 @@ onMounted(async () => {
 .banner-text h1 { font-size: 28px; font-weight: 800; margin-bottom: 6px; }
 .banner-text p  { font-size: 14px; opacity: .85; }
 
+/* ── Toolbar ── */
+.toolbar {
+  margin-bottom: 20px;
+}
+.search-wrap {
+  margin-bottom: 16px;
+  max-width: 480px;
+}
+
 /* ── Tabs ── */
 .category-tabs {
-  display: flex; gap: 10px; margin-bottom: 24px; flex-wrap: wrap;
+  display: flex; gap: 10px; flex-wrap: wrap;
 }
 .tab {
   padding: 8px 20px; border-radius: 24px; font-size: 13px; font-weight: 500;
@@ -122,15 +187,6 @@ onMounted(async () => {
   color: #fff; border-color: transparent;
   box-shadow: 0 4px 14px rgba(64, 158, 255, .35);
 }
-
-/* ── Loading ── */
-.loading-box { text-align: center; padding: 80px 0; color: #999; }
-.spinner {
-  display: inline-block; width: 36px; height: 36px;
-  border: 3px solid #e8e8e8; border-top-color: #409eff;
-  border-radius: 50%; animation: spin .7s linear infinite; margin-bottom: 14px;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
 
 /* ── Grid ── */
 .goods-grid {
