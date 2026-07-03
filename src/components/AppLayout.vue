@@ -25,7 +25,30 @@ import AppHeader from './AppHeader.vue'
 </script>
 
 <style>
-/* 全局重置与基础样式 */
+/* ── CSS 变量主题 ── */
+:root {
+  --color-primary: #4f46e5;
+  --color-primary-light: #818cf8;
+  --color-primary-bg: #eef2ff;
+  --color-bg: #f8fafc;
+  --color-surface: #ffffff;
+  --color-text: #1e293b;
+  --color-text-secondary: #64748b;
+  --color-text-muted: #94a3b8;
+  --color-border: #e2e8f0;
+  --color-danger: #ef4444;
+  --color-success: #22c55e;
+  --color-warning: #f59e0b;
+  --radius-sm: 8px;
+  --radius: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,.06);
+  --shadow-md: 0 4px 16px rgba(0,0,0,.08);
+  --shadow-lg: 0 12px 36px rgba(0,0,0,.12);
+}
+
+/* ── 全局重置 ── */
 *,
 *::before,
 *::after {
@@ -42,46 +65,25 @@ html {
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", "Helvetica Neue", sans-serif;
-  background: #f0f2f7;
-  color: #333;
+  background: var(--color-bg);
+  color: var(--color-text);
   line-height: 1.6;
 }
 
-/* 自定义滚动条 */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: #d0d5e0;
-  border-radius: 3px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #b0b5c0;
-}
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #d0d5e0; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #b0b5c0; }
 
-/* 链接重置 */
-a {
-  color: inherit;
-  text-decoration: none;
-}
+a { color: inherit; text-decoration: none; }
 
-/* 页面切换动画 */
+/* ── 页面切换动画 ── */
 .page-fade-enter-active,
 .page-fade-leave-active {
   transition: opacity 0.2s ease, transform 0.2s ease;
 }
-.page-fade-enter-from {
-  opacity: 0;
-  transform: translateY(8px);
-}
-.page-fade-leave-to {
-  opacity: 0;
-  transform: translateY(-8px);
-}
+.page-fade-enter-from { opacity: 0; transform: translateY(8px); }
+.page-fade-leave-to { opacity: 0; transform: translateY(-8px); }
 </style>
 
 <style scoped>
@@ -89,7 +91,7 @@ a {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: linear-gradient(180deg, #f0f4ff 0%, #f0f2f7 30%, #f5f7fb 100%);
+  background: linear-gradient(180deg, #eef2ff 0%, #f8fafc 30%, #f1f5f9 100%);
 }
 
 .app-main {
@@ -102,7 +104,7 @@ a {
 
 .app-footer {
   margin-top: auto;
-  border-top: 1px solid #e8ecf2;
+  border-top: 1px solid var(--color-border);
   background: rgba(255, 255, 255, 0.6);
   backdrop-filter: blur(10px);
   padding: 28px 24px;
@@ -122,24 +124,20 @@ a {
   margin-bottom: 6px;
 }
 
-.footer-logo {
-  font-size: 20px;
-}
+.footer-logo { font-size: 20px; }
 
 .footer-name {
   font-size: 15px;
   font-weight: 700;
-  color: #555;
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
-.footer-inner p {
-  font-size: 12px;
-  color: #aaa;
-}
+.footer-inner p { font-size: 12px; color: var(--color-text-muted); }
 
 @media (max-width: 768px) {
-  .app-main {
-    padding: 16px 14px 32px;
-  }
+  .app-main { padding: 16px 14px 32px; }
 }
 </style>

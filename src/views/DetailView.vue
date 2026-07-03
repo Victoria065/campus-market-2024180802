@@ -49,24 +49,49 @@
             </div>
           </div>
 
-          <button class="contact-btn">💬 联系卖家</button>
+          <button class="contact-btn" @click="openContact">💬 联系卖家</button>
         </div>
       </div>
     </div>
 
     <div v-else class="empty">商品不存在或已被删除</div>
+
+    <!-- 联系卖家弹窗 -->
+    <el-dialog v-model="contactVisible" title="联系卖家" width="440px" destroy-on-close>
+      <div class="contact-info">
+        <p>👤 卖家：<strong>{{ item?.seller }}</strong></p>
+        <p>📍 交易地点：{{ item?.location }}</p>
+      </div>
+      <el-input
+        v-model="contactMsg"
+        type="textarea"
+        :rows="3"
+        placeholder="输入你想说的话..."
+        class="contact-input"
+      />
+      <template #footer>
+        <el-button @click="contactVisible = false">取消</el-button>
+        <el-button type="primary" @click="sendContact" :disabled="!contactMsg.trim()">发送消息</el-button>
+      </template>
+    </el-dialog>
   </main>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
+import { ElMessage } from 'element-plus'
 import { getTradeById, type TradeItem } from '../api/trade'
+import { sendMessage } from '../api/message'
+import { useUserStore } from '../stores/user'
 
 const route = useRoute()
+const userStore = useUserStore()
 const item = ref<TradeItem | null>(null)
 const loading = ref(true)
 const loadError = ref('')
+const contactVisible = ref(false)
+const contactMsg = ref('')
 
 const coverEmoji = computed(() => {
   if (!item.value) return '📦'
@@ -79,6 +104,33 @@ const statusText = computed(() => {
   const map: Record<string, string> = { reserved: '已预定', sold: '已售出' }
   return map[item.value.status] || item.value.status
 })
+
+function openContact() {
+  if (!userStore.isLoggedIn) {
+    ElMessage.warning('请先登录后再联系卖家')
+    return
+  }
+  contactMsg.value = ''
+  contactVisible.value = true
+}
+
+async function sendContact() {
+  if (!contactMsg.value.trim() || !item.value) return
+  try {
+    await sendMessage({
+      fromUserId: userStore.userId,
+      fromUserName: userStore.displayName,
+      toUserId: item.value.seller,
+      content: `关于「${item.value.title}」：${contactMsg.value.trim()}`,
+      time: new Date().toLocaleString('zh-CN', { hour12: false }),
+      read: false,
+    })
+    ElMessage.success('消息已发送')
+    contactVisible.value = false
+  } catch {
+    ElMessage.error('发送失败，请重试')
+  }
+}
 
 onMounted(async () => {
   try {
@@ -200,6 +252,10 @@ onMounted(async () => {
 }
 .contact-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(64,158,255,.4); }
 .contact-btn:active { transform: translateY(0); }
+
+.contact-info { margin-bottom: 14px; padding: 12px; background: #f8fafc; border-radius: 8px; }
+.contact-info p { font-size: 13px; color: #475569; margin-bottom: 4px; }
+.contact-input { margin-top: 8px; }
 
 @media (max-width: 768px) {
   .detail-card { flex-direction: column; }

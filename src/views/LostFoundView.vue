@@ -203,6 +203,7 @@ onMounted(() => {
   display: flex; align-items: center; justify-content: center;
   font-size: 30px; flex-shrink: 0;
   transition: transform .3s;
+  position: relative; overflow: hidden;
 }
 .lost-card:hover .lost-icon-wrap { transform: scale(1.08); }
 .lost-icon-wrap.lost  { background: linear-gradient(135deg, #fef0f0, #ffe0e0); }

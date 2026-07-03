@@ -68,6 +68,13 @@
             <span>⏰ {{ item.deadline }} 截止</span>
             <span>👤 {{ item.publisher }}</span>
           </div>
+          <button
+            v-if="item.status === 'open' && item.publisher !== userStore.displayName"
+            class="accept-btn"
+            @click.prevent.stop="acceptErrand(item)"
+          >
+            🤝 接单
+          </button>
         </div>
         <button
           class="fav-btn"
@@ -91,13 +98,17 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { getErrands, type ErrandItem } from '../api/errand'
+import { getErrands, updateErrand, type ErrandItem } from '../api/errand'
+import { ElMessage } from 'element-plus'
+import { useUserStore } from '../stores/user'
 import EmptyState from '../components/EmptyState.vue'
 import LoadingState from '../components/LoadingState.vue'
 import ErrorState from '../components/ErrorState.vue'
 import SearchBar from '../components/SearchBar.vue'
 import { useFavoriteStore } from '../stores/favorite'
+import { addParticipation } from '../stores/participation'
 
+const userStore = useUserStore()
 const favStore = useFavoriteStore()
 
 const items = ref<ErrandItem[]>([])
@@ -172,6 +183,16 @@ async function loadData() {
   } finally {
     loading.value = false
   }
+}
+
+async function acceptErrand(item: ErrandItem) {
+  if (!userStore.isLoggedIn) { ElMessage.warning('请先登录'); return }
+  try {
+    await updateErrand(item.id, { status: 'accepted' })
+    addParticipation('errand', item.id, item.title)
+    ElMessage.success('接单成功！')
+    loadData()
+  } catch { ElMessage.error('接单失败，请重试') }
 }
 
 onMounted(() => {
@@ -329,4 +350,14 @@ onMounted(() => {
   50% { transform: scale(1.3); }
   100% { transform: scale(1); }
 }
+
+/* ── Accept Button ── */
+.accept-btn {
+  margin-top: 12px; padding: 8px 20px;
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  color: #fff; border: none; border-radius: 20px;
+  font-size: 13px; font-weight: 600; cursor: pointer; transition: all .25s;
+  align-self: flex-end;
+}
+.accept-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 14px rgba(34,197,94,.35); }
 </style>

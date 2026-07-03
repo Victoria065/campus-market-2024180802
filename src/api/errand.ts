@@ -24,3 +24,7 @@ export function getErrandById(id: number): Promise<ErrandItem> {
 export function createErrand(data: Omit<ErrandItem, 'id'>): Promise<ErrandItem> {
   return http.post('/errands', data).then((res) => res.data)
 }
+
+export function updateErrand(id: number | string, data: Partial<ErrandItem>): Promise<ErrandItem> {
+  return http.patch(`/errands/${id}`, data).then((res) => res.data)
+}

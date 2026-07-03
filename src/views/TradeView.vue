@@ -215,9 +215,9 @@ onMounted(() => {
 
 .goods-cover {
   height: 130px;
-  background: linear-gradient(135deg, #f0f4ff, #e4eafc);
+  background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
   display: flex; align-items: center; justify-content: center;
-  position: relative;
+  position: relative; overflow: hidden;
 }
 .goods-emoji { font-size: 48px; transition: transform .3s; }
 .goods-card:hover .goods-emoji { transform: scale(1.12); }

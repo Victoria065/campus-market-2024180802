@@ -25,3 +25,7 @@ export function getGroupBuyById(id: number): Promise<GroupBuyItem> {
 export function createGroupBuy(data: Omit<GroupBuyItem, 'id'>): Promise<GroupBuyItem> {
   return http.post('/groupBuys', data).then((res) => res.data)
 }
+
+export function updateGroupBuy(id: number | string, data: Partial<GroupBuyItem>): Promise<GroupBuyItem> {
+  return http.patch(`/groupBuys/${id}`, data).then((res) => res.data)
+}

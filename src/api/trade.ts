@@ -9,7 +9,6 @@ export interface TradeItem {
   seller: string
   publishTime: string
   location: string
-  image: string
   description: string
   status: string
 }

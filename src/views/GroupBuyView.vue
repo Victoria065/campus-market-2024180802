@@ -67,6 +67,13 @@
           <span class="progress-text">{{ item.currentCount }}/{{ item.targetCount }}人</span>
           <span v-if="item.status === 'full'" class="end-tag full">已满员</span>
           <span v-else-if="item.status !== 'recruiting'" class="end-tag over">已结束</span>
+          <button
+            v-if="item.status === 'recruiting' && item.organizer !== userStore.displayName"
+            class="join-btn"
+            @click.prevent.stop="joinGroup(item)"
+          >
+            + 加入
+          </button>
         </div>
 
         <div class="group-footer">
@@ -89,13 +96,17 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { getGroupBuys, type GroupBuyItem } from '../api/groupBuy'
+import { getGroupBuys, updateGroupBuy, type GroupBuyItem } from '../api/groupBuy'
+import { ElMessage } from 'element-plus'
+import { useUserStore } from '../stores/user'
 import EmptyState from '../components/EmptyState.vue'
 import LoadingState from '../components/LoadingState.vue'
 import ErrorState from '../components/ErrorState.vue'
 import SearchBar from '../components/SearchBar.vue'
 import { useFavoriteStore } from '../stores/favorite'
+import { addParticipation } from '../stores/participation'
 
+const userStore = useUserStore()
 const favStore = useFavoriteStore()
 
 const items = ref<GroupBuyItem[]>([])
@@ -168,6 +179,18 @@ async function loadData() {
   } finally {
     loading.value = false
   }
+}
+
+async function joinGroup(item: GroupBuyItem) {
+  if (!userStore.isLoggedIn) { ElMessage.warning('请先登录'); return }
+  const newCount = item.currentCount + 1
+  const newStatus = newCount >= item.targetCount ? 'full' : 'recruiting'
+  try {
+    await updateGroupBuy(item.id, { currentCount: newCount, status: newStatus })
+    addParticipation('groupBuy', item.id, item.title)
+    ElMessage.success('加入成功！')
+    loadData()
+  } catch { ElMessage.error('操作失败，请重试') }
 }
 
 onMounted(() => {
@@ -271,6 +294,16 @@ onMounted(() => {
   font-size: 14px;
 }
 .footer-divider { color: #ddd; }
+
+/* ── Join Button ── */
+.join-btn {
+  padding: 6px 16px;
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  color: #fff; border: none; border-radius: 16px;
+  font-size: 12px; font-weight: 600; cursor: pointer; transition: all .25s;
+  white-space: nowrap;
+}
+.join-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(79,70,229,.35); }
 
 /* ── Favorite Button ── */
 .fav-btn {

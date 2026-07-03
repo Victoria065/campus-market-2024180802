@@ -34,14 +34,14 @@
         <div class="stat-label">我的收藏</div>
       </div>
       <div class="stat-card">
-        <div class="stat-icon" style="background:#f0f9eb;">👀</div>
-        <div class="stat-num">0</div>
-        <div class="stat-label">浏览历史</div>
+        <div class="stat-icon" style="background:#f0f9eb;">💬</div>
+        <div class="stat-num">{{ unreadMsgCount }}</div>
+        <div class="stat-label">未读消息</div>
       </div>
       <div class="stat-card">
-        <div class="stat-icon" style="background:#f5f0ff;">💬</div>
-        <div class="stat-num">2</div>
-        <div class="stat-label">未读消息</div>
+        <div class="stat-icon" style="background:#f5f0ff;">📅</div>
+        <div class="stat-num" style="font-size:16px;">{{ userStore.registerTime }}</div>
+        <div class="stat-label">注册时间</div>
       </div>
     </div>
 
@@ -172,6 +172,41 @@
           </div>
         </div>
       </template>
+    </section>
+
+    <!-- ============ 我的参与 ============ -->
+    <section class="publish-section">
+      <h2 class="section-title">🤝 我的参与</h2>
+      <div v-if="myParticipations.length" class="record-list">
+        <div
+          v-for="p in myParticipations"
+          :key="p.type + '-' + p.id"
+          class="record-card"
+        >
+          <div class="record-left">
+            <span class="record-emoji">{{ p.type === 'groupBuy' ? '👥' : '🏃' }}</span>
+            <div class="record-info">
+              <span class="record-title">{{ p.title }}</span>
+              <span class="record-meta">
+                {{ p.type === 'groupBuy' ? '已加入拼单' : '已接单' }} · {{ p.joinedAt }}
+              </span>
+            </div>
+          </div>
+          <div class="record-right">
+            <span class="record-status active">
+              {{ p.type === 'groupBuy' ? '已加入' : '已接单' }}
+            </span>
+          </div>
+        </div>
+      </div>
+      <div v-else class="empty-hint">
+        <span class="empty-emoji">🤝</span>
+        <p>还没有参与任何拼单或跑腿任务</p>
+        <div style="display:flex;gap:12px;margin-top:4px;">
+          <router-link to="/group-buy" class="go-publish">去浏览拼单 →</router-link>
+          <router-link to="/errand" class="go-publish">去浏览跑腿 →</router-link>
+        </div>
+      </div>
     </section>
 
     <!-- ============ 我的发布记录 ============ -->
@@ -319,7 +354,7 @@
       <router-link to="/lost-found" class="menu-item">🔍 浏览失物招领</router-link>
       <router-link to="/group-buy" class="menu-item">👥 浏览拼单搭子</router-link>
       <router-link to="/errand" class="menu-item">🏃 浏览跑腿委托</router-link>
-      <div class="menu-item">⚙️ 账号设置</div>
+      <div class="menu-item" style="color: #ef4444; cursor: pointer;" @click="handleLogout">🚪 退出登录</div>
     </div>
 
     <!-- ============ 编辑资料弹窗 ============ -->
@@ -360,16 +395,20 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted } from 'vue'
-import { ElMessage } from 'element-plus'
+import { useRouter } from 'vue-router'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import { getTrades, type TradeItem } from '../api/trade'
 import { getLostFounds, type LostFoundItem } from '../api/lostFound'
 import { getGroupBuys, type GroupBuyItem } from '../api/groupBuy'
 import { getErrands, type ErrandItem } from '../api/errand'
+import { getAllMessages } from '../api/message'
+import { getParticipations, type Participation } from '../stores/participation'
 import { useUserStore } from '../stores/user'
 import { useFavoriteStore } from '../stores/favorite'
 import LoadingState from '../components/LoadingState.vue'
 import ErrorState from '../components/ErrorState.vue'
 
+const router = useRouter()
 const userStore = useUserStore()
 const favStore = useFavoriteStore()
 
@@ -422,11 +461,16 @@ const totalPublished = computed(
   () => myTrades.value.length + myLostFounds.value.length + myGroupBuys.value.length + myErrands.value.length
 )
 
+const unreadMsgCount = ref(0)
+
 // ==================== 我的收藏（分组） ====================
 const favTrades = computed(() => favStore.favoritedByType('trade'))
 const favLostFounds = computed(() => favStore.favoritedByType('lostFound'))
 const favGroupBuys = computed(() => favStore.favoritedByType('groupBuy'))
 const favErrands = computed(() => favStore.favoritedByType('errand'))
+
+// ==================== 我的参与（加入的拼单 + 接的委托） ====================
+const myParticipations = ref<Participation[]>(getParticipations())
 
 // ==================== 辅助函数 ====================
 function tradeEmoji(cat: string): string {
@@ -454,16 +498,26 @@ async function loadMyPublish() {
   loading.value = true
   error.value = ''
   try {
+    const currentUserName = userStore.displayName
     const [trades, lostFounds, groupBuys, errands] = await Promise.all([
       getTrades(),
       getLostFounds(),
       getGroupBuys(),
       getErrands(),
     ])
-    myTrades.value = trades
-    myLostFounds.value = lostFounds
-    myGroupBuys.value = groupBuys
-    myErrands.value = errands
+    // 只显示当前用户发布的内容
+    myTrades.value = trades.filter((t) => t.seller === currentUserName)
+    myLostFounds.value = lostFounds.filter((l) => l.contactName === currentUserName)
+    myGroupBuys.value = groupBuys.filter((g) => g.organizer === currentUserName)
+    myErrands.value = errands.filter((e) => e.publisher === currentUserName)
+
+    // 加载未读消息数
+    try {
+      const msgs = await getAllMessages()
+      unreadMsgCount.value = msgs.filter(
+        (m) => (m.toUserId === userStore.userId || m.fromUserId === 'system') && !m.read
+      ).length
+    } catch { unreadMsgCount.value = 0 }
   } catch (err: any) {
     console.error('加载发布记录失败:', err)
     if (err?.code === 'ERR_NETWORK' || err?.message?.includes('Network')) {
@@ -476,7 +530,21 @@ async function loadMyPublish() {
   }
 }
 
+async function handleLogout() {
+  try {
+    await ElMessageBox.confirm('确定要退出登录吗？', '退出登录', {
+      confirmButtonText: '确定退出',
+      cancelButtonText: '取消',
+      type: 'warning',
+    })
+    userStore.logout()
+    router.push('/')
+    ElMessage.success('已退出登录')
+  } catch { /* 用户取消 */ }
+}
+
 onMounted(() => {
+  myParticipations.value = getParticipations()
   loadMyPublish()
 })
 </script>
